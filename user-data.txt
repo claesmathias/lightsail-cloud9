@@ -1,0 +1,53 @@
+#!/bin/bash
+# install the necessary tools
+sudo yum install docker git -y
+
+# add new group and add centos user
+sudo groupadd docker
+sudo usermod -aG docker centos
+
+# enable docker at startup
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
+
+# install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# clone
+cd /home/centos/
+git clone https://github.com/claesmathias/lightsail-cloud9.git
+
+# set docker-compose environment variables
+cat <<EOF >/home/centos/lightsail-cloud9/.env
+HOST_IP=$(hostname --ip-address)
+EMAIL=mail@example.com
+URL=example.com
+SUBDOMAINS=www
+EXTRA_DOMAINS=
+TZ=Europe/Brussels
+EOF
+
+# set noip variables
+cat <<EOF >/home/centos/lightsail-cloud9/noip.conf
+# This is an email address
+USERNAME='mail@example.com'
+PASSWORD='****************'
+# Your hostname, group name, or a comma-delimited list of a mix of them.
+DOMAINS='-.example.com,www.example.com'
+# Examples: 5 m, 5 h, 5 d. Minimum is 5 minutes.
+INTERVAL='5m'
+EOF
+
+# set permissions
+sudo chown -R centos:centos /home/centos/lightsail-cloud9/
+
+# set selinux permissions
+sudo chcon -Rt svirt_sandbox_file_t /home/centos
+
+# start docker containers
+cd /home/centos/lightsail-cloud9/
+/usr/local/bin/docker-compose up -d
+
+# reset ssh permissions
+restorecon -FRvv ~/.ssh
