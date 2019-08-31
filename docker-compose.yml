@@ -19,6 +19,7 @@ services:
       - PUID=1000
       - EMAIL=${EMAIL}
       - URL=${URL}
+      - SUBDOMAINS=${SUBDOMAINS}
       - EXTRA_DOMAINS=${EXTRA_DOMAINS}
       - DHLEVEL=2048
       - TZ=${TZ}
