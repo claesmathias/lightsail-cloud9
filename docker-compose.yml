@@ -65,7 +65,7 @@ services:
   cloud9:
     image: linuxserver/cloud9
     container_name: cloud9
-    retart: always
+    restart: always
     volumes:
       - /home/centos/code:/code
     environment:
